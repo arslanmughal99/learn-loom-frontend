@@ -1,26 +1,22 @@
+/* eslint-disable @next/next/no-img-element */
 import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
-import { clone, round } from "lodash";
+import { clone } from "lodash";
 import { useRecoilState } from "recoil";
-import { CheckIcon } from "lucide-react";
 import { FunctionComponent, useState } from "react";
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import CourseRatings from "./CourseRatings";
-import CourseReviewsDialog from "./CourseReviewsDialog";
+import CourseRatings from "../../components/CourseRatings";
+import { Button } from "@/components/ui/button";
 import { CourseDetails } from "@/typings/course";
 import { Ratings } from "@/components/ui/ratings";
-import CourseDetailCard from "./CourseDetailCard";
+import CourseDetailCard from "../../components/CourseDetailCard";
 import CourseContent from "@/components/CourseContent";
+import CourseReviewsDialog from "../../components/CourseReviewsDialog";
 import { courseContentDialogState } from "@/state/course";
-import CourseInstructorDetails from "./CourseInstructorDetails";
+import CourseObjectives from "@/components/CourseObjectives";
 import CoursePreviewDialog from "@/components/CoursePreviewDialog";
-import { Button } from "../../components/ui/button";
+import CourseInstructorDetails from "@/components/CourseInstructorDetails";
 
 interface CoursePageProps {
   details: CourseDetails;
@@ -42,9 +38,9 @@ const CoursePage: FunctionComponent<CoursePageProps> = ({ details }) => {
               <Image
                 width={30}
                 height={30}
-                className="ring-2 ring-primary/20 rounded ring-offset-1"
                 src={details.category.icon}
                 alt={details.category.title}
+                className="ring-2 ring-primary/20 rounded ring-offset-1"
               />
               <Link
                 className="text-muted-foreground"
@@ -88,52 +84,7 @@ const CoursePage: FunctionComponent<CoursePageProps> = ({ details }) => {
         <div className="flex-1 space-y-8">
           {/* WHAT YOU WILL LEARN SECTION */}
           <div>
-            <Collapsible defaultOpen={false}>
-              <div className="border-2 rounded-sm p-8">
-                <h3 className="py-2 text-2xl font-semibold">
-                  What you&apos;ll learn
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2">
-                  {clone(details.objectives)
-                    .splice(0, 6)
-                    .map((o, idx) => (
-                      <p
-                        key={idx}
-                        className="inline-flex items-start gap-2 text-md text-foreground/80"
-                      >
-                        <span>
-                          <CheckIcon className="h-5 w-5" />
-                        </span>
-                        {o}
-                      </p>
-                    ))}
-                </div>
-                {details.objectives.length >= 6 && (
-                  <>
-                    <CollapsibleContent className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {clone(details.objectives)
-                        .splice(6, details.objectives.length)
-                        .map((o, idx) => (
-                          <p
-                            key={idx}
-                            className="inline-flex items-start gap-2 text-md text-foreground/80"
-                          >
-                            <span>
-                              <CheckIcon className="h-5 w-5" />
-                            </span>
-                            {o}
-                          </p>
-                        ))}
-                    </CollapsibleContent>
-                  </>
-                )}
-                {details.objectives.length >= 6 && (
-                  <CollapsibleTrigger className="py-2 text-primary underline">
-                    Show More
-                  </CollapsibleTrigger>
-                )}
-              </div>
-            </Collapsible>
+            <CourseObjectives objectives={clone(details.objectives)} />
           </div>
           {/* COURSE CONTENT SECTION */}
           <div className="space-y-4">

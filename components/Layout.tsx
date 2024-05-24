@@ -9,10 +9,10 @@ interface LayoutProps {
   user?: UserAuthInfo;
 }
 
-const Layout: FunctionComponent<LayoutProps> = ({ children, user }) => {
+const Layout: FunctionComponent<LayoutProps> = ({ children }) => {
   return (
     <>
-      <Header user={user} />
+      <Header />
       {children}
       <Footer />
     </>

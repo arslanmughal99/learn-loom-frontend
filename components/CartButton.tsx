@@ -1,20 +1,27 @@
 import Image from "next/image";
+import { toast } from "sonner";
 import { truncate } from "lodash";
 import { useRecoilState } from "recoil";
-import { FunctionComponent } from "react";
-import { ShoppingCartIcon, Trash } from "lucide-react";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import { FunctionComponent, useState } from "react";
+import { Loader2Icon, ShoppingCartIcon, Trash } from "lucide-react";
 
 import { cn } from "../utils/utils";
 import { cartState } from "../state/cart";
+import { useGetCookieKeys } from "../hooks/auth";
 import { Button, buttonVariants } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { useGetCookieKeys } from "../hooks/auth";
 
 interface CartButtonProps {}
 
+const endpoint = process.env.NEXT_PUBLIC_API_ENDPOINT;
+
 const CartButton: FunctionComponent<CartButtonProps> = () => {
+  const router = useRouter();
   const { session: sKey } = useGetCookieKeys();
   const [cart, setCart] = useRecoilState(cartState);
+  const [enrolling, setEnrolling] = useState(false);
 
   const handleRemoveFromCart = (id: number) => {
     const _cart = cart.filter((i) => i.id !== id);
@@ -22,24 +29,59 @@ const CartButton: FunctionComponent<CartButtonProps> = () => {
   };
 
   const handleEnroll = async () => {
-    
+    setEnrolling(true);
+    const session = getCookie(sKey);
+    const url = endpoint + "/order";
+    try {
+      const resRaw = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courses: cart.map((c) => {
+            return { courseId: c.id };
+          }),
+        }),
+      });
+      const res = await resRaw.json();
+      if (res.id) {
+        setCart([]);
+        router.push("/student/learning");
+        toast.success("Course enrolled success fully");
+      }
+
+      if (res.error) {
+        toast.error(res.message);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setEnrolling(false);
+    }
   };
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="link" className="relative text-secondary-foreground">
-          {cart.length > 0 && (
-            <span
-              className={cn(
-                "absolute -top-1 right-1 animate-bounce inline-flex items-center justify-center text-background text-xs ring-[3px] ring-background bg-primary rounded-full h-5 w-5"
-              )}
-            >
-              {cart.length}
-            </span>
-          )}
-
-          <ShoppingCartIcon />
+        <Button
+          asChild
+          variant="link"
+          className="relative text-secondary-foreground cursor-pointer"
+        >
+          <div>
+            {cart.length > 0 && (
+              <span
+                className={cn(
+                  "absolute -top-1 right-1 animate-bounce inline-flex items-center justify-center text-background text-xs ring-[3px] ring-background bg-primary rounded-full h-5 w-5"
+                )}
+              >
+                {cart.length}
+              </span>
+            )}
+            <ShoppingCartIcon />
+          </div>
         </Button>
       </PopoverTrigger>
 
@@ -73,6 +115,7 @@ const CartButton: FunctionComponent<CartButtonProps> = () => {
                     )}
                   </div>
                   <Button
+                    autoFocus={false}
                     variant="link"
                     onClick={() => handleRemoveFromCart(c.id)}
                   >
@@ -81,7 +124,19 @@ const CartButton: FunctionComponent<CartButtonProps> = () => {
                 </li>
               ))}
             </ul>
-            <Button className="w-full">Enroll Now</Button>
+            <Button
+              disabled={enrolling}
+              onClick={handleEnroll}
+              className="w-full inline-flex items-center gap-x-4"
+            >
+              {enrolling ? (
+                <>
+                  <Loader2Icon className="h-5 w-5 animate-spin" /> Enrolling
+                </>
+              ) : (
+                "Enroll Now"
+              )}
+            </Button>
 
             <p className="text-center">
               <a href="#" className={buttonVariants({ variant: "link" })}>

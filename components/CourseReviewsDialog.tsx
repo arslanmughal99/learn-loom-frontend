@@ -3,11 +3,11 @@ import { LoaderCircleIcon, StarIcon, XIcon } from "lucide-react";
 import { Fragment, FunctionComponent, useEffect, useState } from "react";
 
 import { Review } from "@/typings/review";
-import CourseRatings from "./CourseRatings";
 import { Button } from "@/components/ui/button";
 import { Ratings } from "@/components/ui/ratings";
 import { useGetCourseReviews } from "@/hooks/review";
 import { CourseDetailsRating } from "@/typings/course";
+import CourseRatings from "@/components/CourseRatings";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 

@@ -14,6 +14,7 @@ import { deleteCookie } from "cookies-next";
 import Link from "next/link";
 import { Input } from "./ui/input";
 import { cn } from "@/utils/utils";
+import CartButton from "./CartButton";
 import { Skeleton } from "./ui/skeleton";
 import { Separator } from "./ui/separator";
 import { useShowHeader } from "../hooks/header";
@@ -21,7 +22,6 @@ import { Button, buttonVariants } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useGetCookieKeys, useGetUserAuthInfo } from "@/hooks/auth";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import CartButton from "./CartButton";
 
 const links: {
   href: string;
@@ -198,16 +198,16 @@ const Header: FunctionComponent<HeaderProps> = () => {
 
                     <div className="flex flex-col items-start">
                       <Link
-                        href="/student/learning"
+                        href="/student/dashboard/learning"
                         className={cn(
                           buttonVariants({ variant: "link" }),
                           "text-foreground/80 text-md font-semibold"
                         )}
                       >
-                        My Learning
+                        Dashboard
                       </Link>
                       <Link
-                        href="/points"
+                        href="/dashboard/points"
                         className={cn(
                           buttonVariants({ variant: "link" }),
                           "text-foreground/80 text-md font-semibold"
@@ -217,7 +217,7 @@ const Header: FunctionComponent<HeaderProps> = () => {
                       </Link>
                       {user.role === "Instructor" && (
                         <Link
-                          href="/points"
+                          href="/instructor/dashboard/"
                           className={cn(
                             buttonVariants({ variant: "link" }),
                             "text-foreground/80 text-md font-semibold"
@@ -227,7 +227,7 @@ const Header: FunctionComponent<HeaderProps> = () => {
                         </Link>
                       )}
                       <Link
-                        href="/account-settings"
+                        href="/settings"
                         className={cn(
                           buttonVariants({ variant: "link" }),
                           "text-foreground/80 text-md font-semibold"

@@ -1,9 +1,12 @@
 import { User } from "./user";
 import { Category } from "./course";
+import { Certificate } from "./certificate";
 
 
 export type EnrollmentInstructor = Pick<User, "id" | "lastName" | "firstName" | "username" | "profileImage">;
 export type EnrollmentAssociate = Omit<EnrollmentInstructor, "username">;
+
+export type EnrollmentCertificate = Pick<Certificate, "id" | "createdAt">
 
 export type Enrollment = {
     id: number;
@@ -16,6 +19,7 @@ export type Enrollment = {
     description: string;
     enrolled: { expiry: string | null, id: number }
     instructor: EnrollmentInstructor;
+    certificate: EnrollmentCertificate;
     billingType: "Free" | "Monthly" | "Lifetime";
     associates: EnrollmentAssociate[];
     review?: { rating: number; review: string }

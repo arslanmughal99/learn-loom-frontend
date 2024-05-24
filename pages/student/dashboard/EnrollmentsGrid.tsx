@@ -1,6 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import { toast } from "sonner";
 import Image from "next/image";
 import { truncate } from "lodash";
+import { useRecoilState } from "recoil";
 import { getCookie } from "cookies-next";
 import { FunctionComponent, useState } from "react";
 import { EllipsisVertical, Loader2Icon } from "lucide-react";
@@ -23,7 +26,9 @@ import { Progress } from "@/components/ui/progress";
 import { useGetEnrollments } from "@/hooks/enrollment";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { certificateReceivedDialogState } from "@/state/certificate";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import CertificateReceivedDialog from "@/components/CertificateReceivedDialog";
 
 interface ActiveLearningProps {
   refetchStats: () => void;
@@ -36,8 +41,12 @@ const ActiveLearning: FunctionComponent<ActiveLearningProps> = ({
   status,
   refetchStats,
 }) => {
-  const { session: sKey } = useGetCookieKeys();
   const [page, setPage] = useState(1);
+  const { session: sKey } = useGetCookieKeys();
+  const [reqCertificate, setReqCertificate] = useState(false);
+  const [_openCertDialog, setOpenCertDialog] = useRecoilState(
+    certificateReceivedDialogState
+  );
   const { data, refetch, isLoading, isError } = useGetEnrollments({
     page,
     status,
@@ -81,10 +90,37 @@ const ActiveLearning: FunctionComponent<ActiveLearningProps> = ({
     }
   };
 
+  const handleRequestCertificate = async (courseId: number) => {
+    setReqCertificate(true);
+    const session = getCookie(sKey);
+    const url = endpoint + "/certificate/request";
+    try {
+      const resRaw = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({ courseId }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session}`,
+        },
+      });
+      const res = await resRaw.json();
+      if (res.error) {
+        toast.error(res.message);
+        return;
+      }
+      setOpenCertDialog(true);
+      refetch();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setReqCertificate(false);
+    }
+  };
+
   return (
     <>
       {/* ENROLLMENT GRID SECTION */}
-      {!isLoading && (!!data && data.total === 0) && (
+      {!isLoading && !!data && data.total === 0 && (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-600px)] max-w-4xl mx-auto">
           <div className="text-center">
             <Image
@@ -119,7 +155,7 @@ const ActiveLearning: FunctionComponent<ActiveLearningProps> = ({
         {!isError &&
           data?.courses &&
           data.courses.map((c, idx) => (
-            <Card key={idx} className="overflow-hidden max-w-4xl">
+            <Card key={idx} className="overflow-hidden max-w-4xl rounded">
               <CardHeader className="p-0 w-full">
                 <div className="relative overflow-clip">
                   <div className="z-10 absolute right-2 top-2">
@@ -174,7 +210,7 @@ const ActiveLearning: FunctionComponent<ActiveLearningProps> = ({
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <Image
+                  <img
                     width={1000}
                     height={200}
                     alt={c.title}
@@ -184,7 +220,7 @@ const ActiveLearning: FunctionComponent<ActiveLearningProps> = ({
                 </div>
               </CardHeader>
 
-              <CardContent className="flex items-center justify-between gap-2 p-2 px-2 py-4 text-muted-foreground scroll-m-20 text-md font-semibold tracking-tight">
+              <CardContent className="flex items-center justify-between gap-2 p-2 px-2 pt-4 text-muted-foreground scroll-m-20 text-md font-semibold tracking-tight">
                 <div className="inline-flex items-center justify-start gap-2">
                   <Avatar>
                     <AvatarImage src={c.instructor.profileImage} />
@@ -226,11 +262,11 @@ const ActiveLearning: FunctionComponent<ActiveLearningProps> = ({
                 </TooltipProvider>
               </CardContent>
               <CardContent className="px-4">
-                <div>
+                <div className="space-y-2">
                   <Progress
+                    className="my-2"
                     varient="default"
                     value={c.progress}
-                    className="my-2"
                   />
                   <div className="flex items-start justify-between">
                     <div>
@@ -248,6 +284,21 @@ const ActiveLearning: FunctionComponent<ActiveLearningProps> = ({
                       </p>
                     </div>
                   </div>
+                  <div>
+                    {c.progress === 100 && !c.certificate && (
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        disabled={reqCertificate}
+                        onClick={() => handleRequestCertificate(c.id)}
+                      >
+                        {reqCertificate && (
+                          <Loader2Icon className="h-5 w-5 animate-spin" />
+                        )}{" "}
+                        Request Certificate
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -262,14 +313,10 @@ const ActiveLearning: FunctionComponent<ActiveLearningProps> = ({
         >
           <div className="hidden sm:block">
             <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">{(page - 1) * 12 + 1}</span>
-              &nbsp; to&nbsp;
-              <span className="font-medium">
-                {(page - 1) * 12 +
-                  (data && data.courses ? data?.courses.length : 0)}
-              </span>{" "}
-              of&nbsp;
-              <span className="font-medium">{data?.total ?? 0}</span> results
+              Showing {(page - 1) * 12 + 1} to{" "}
+              {(page - 1) * 12 +
+                (data && data.courses ? data?.courses.length : 0)}{" "}
+              of {data?.total ?? 0} results
             </p>
           </div>
           <div className="flex flex-1 justify-between sm:justify-end gap-x-4">
@@ -282,6 +329,8 @@ const ActiveLearning: FunctionComponent<ActiveLearningProps> = ({
           </div>
         </div>
       </div>
+
+      <CertificateReceivedDialog />
     </>
   );
 };

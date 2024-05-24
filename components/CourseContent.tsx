@@ -10,13 +10,14 @@ import {
   AccordionContent,
   AccordionTrigger,
 } from "./ui/accordion";
-import { Button } from "./ui/button";
 import {
   courseContentDialogState,
   coursePreviewCurrentLecture,
 } from "../state/course";
-import { CourseDetails, PreviewLecture } from "../typings/course";
 import { cn } from "../utils/utils";
+import { Button } from "./ui/button";
+import { Lecture } from "../typings/lecture";
+import { CourseDetails } from "../typings/course";
 
 interface CourseContentProps {
   details: CourseDetails;
@@ -42,7 +43,7 @@ const CourseContent: FunctionComponent<CourseContentProps> = ({ details }) => {
               <div>
                 <p className="text-sm text-foreground/60">
                   {g.lectures.length} lectures . &nbsp;
-                  {reduce<PreviewLecture, number>(
+                  {reduce<Lecture, number>(
                     g.lectures,
                     (p, c) => (p += c.duration),
                     0

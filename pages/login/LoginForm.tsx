@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { useGetCookieKeys } from "@/hooks/auth";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { decode } from "jsonwebtoken";
+import dayjs from "dayjs";
 
 const endpoint = process.env.NEXT_PUBLIC_API_ENDPOINT;
 
@@ -35,7 +37,6 @@ const LoginForm: FunctionComponent<LoginFormProps> = ({ error }) => {
 
   async function onSubmit(values: LoginForm) {
     setIsLoading(true);
-    console.log(values);
     const { password, username } = values;
     const url = endpoint + "/login";
     try {
@@ -45,9 +46,28 @@ const LoginForm: FunctionComponent<LoginFormProps> = ({ error }) => {
         headers: { "Content-Type": "application/json" },
       });
       const token = await res.json();
-      setCookie(sKey, token.accessToken);
-      setCookie(rKey, token.refreshToken);
-      router.replace("/");
+
+      const aToken = decode(token.accessToken, {
+        json: true,
+        complete: true,
+      })?.payload as any;
+
+      const rToken = decode(token.refreshToken, {
+        json: true,
+        complete: true,
+      })?.payload as any;
+
+      setCookie(sKey, token.accessToken, {
+        maxAge: aToken.exp - aToken.iat,
+        expires: new Date(aToken.exp * 1000),
+      });
+
+      setCookie(rKey, token.refreshToken, {
+        maxAge: rToken.exp - rToken.iat,
+        expires: new Date(rToken.exp * 1000),
+      });
+
+      if (res.status === 201) router.replace("/");
     } catch (err) {
       console.log(err);
     } finally {

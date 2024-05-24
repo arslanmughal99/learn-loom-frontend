@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import {
   LibraryIcon,
   BadgeMinusIcon,
@@ -5,6 +6,7 @@ import {
   CalendarPlus2Icon,
 } from "lucide-react";
 import dayjs from "dayjs";
+import Link from "next/link";
 import Image from "next/image";
 import { truncate } from "lodash";
 import { useRecoilState } from "recoil";
@@ -16,7 +18,6 @@ import { cartState } from "../state/cart";
 import { Course } from "../typings/course";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Card, CardHeader, CardFooter, CardContent } from "./ui/card";
-import Link from "next/link";
 
 interface CourseCardProps {
   course: Course;
@@ -40,9 +41,9 @@ const CourseCard: FunctionComponent<CourseCardProps> = ({ course }) => {
     <Card className="overflow-hidden h-full max-w-4xl rounded">
       <CardHeader className="p-0 w-full">
         <div className="overflow-clip">
-          <Image
-            width={1000}
-            height={200}
+          <img
+            // width={1000}
+            // height={200}
             alt={course.title}
             src={course.thumbnail}
             className="hover:scale-105 transition duration-300"

@@ -14,10 +14,12 @@ const CourseRatings: FunctionComponent<CourseReviewsProps> = ({ rating }) => {
   return (
     <div className="space-y-2">
       <h3 className="text-2xl font-semibold text-left">Course Reviews</h3>
-      <p className="flex items-center gap-x-2 text-md text-foreground/80 text-justify">
-        <Ratings rating={rating.average} variant="yellow" /> based on&nbsp;
-        {rating.total} student reviews
-      </p>
+      <div className="flex items-center gap-x-2">
+        <Ratings rating={rating.average} variant="yellow" />
+        <p className="flex items-center gap-x-2 text-md text-foreground/80 text-justify">
+          based on {rating.total} student reviews
+        </p>
+      </div>
       {/* FIVE STAR */}
       <div className="flex items-center gap-x-4 justify-between">
         <p className="flex items-center text-md text-foreground/80 gap-x-2">
@@ -27,7 +29,7 @@ const CourseRatings: FunctionComponent<CourseReviewsProps> = ({ rating }) => {
         <Progress
           placeholder="sd"
           className="w-[80%] h-3"
-          value={rating.fivestar}
+          value={round((rating.fivestar / rating.total) * 100, 1)}
         />
         <p className="flex items-center text-sm text-foreground/80 w-[70px]">
           {round((rating.fivestar / rating.total) * 100, 1)}%
@@ -42,7 +44,7 @@ const CourseRatings: FunctionComponent<CourseReviewsProps> = ({ rating }) => {
         <Progress
           placeholder="sd"
           className="w-[80%] h-3"
-          value={rating.fourstar}
+          value={round((rating.fourstar / rating.total) * 100, 1)}
         />
         <p className="flex items-center text-sm text-foreground/80 w-[70px]">
           {round((rating.fourstar / rating.total) * 100, 1)}%
@@ -57,7 +59,7 @@ const CourseRatings: FunctionComponent<CourseReviewsProps> = ({ rating }) => {
         <Progress
           placeholder="sd"
           className="w-[80%] h-3"
-          value={rating.threestar}
+          value={round((rating.threestar / rating.total) * 100, 1)}
         />
         <p className="flex items-center text-sm text-foreground/80 w-[70px]">
           {round((rating.threestar / rating.total) * 100, 1)}%
@@ -69,7 +71,10 @@ const CourseRatings: FunctionComponent<CourseReviewsProps> = ({ rating }) => {
           2&nbsp;
           <StarIcon className="h-5 w-5 fill-yellow-500 stroke-yellow-500" />
         </p>
-        <Progress className="w-[80%] h-3" value={rating.twostar} />
+        <Progress
+          className="w-[80%] h-3"
+          value={round((rating.twostar / rating.total) * 100, 1)}
+        />
         <p className="flex items-center text-sm text-foreground/80 w-[70px]">
           {round((rating.twostar / rating.total) * 100, 1)}%
         </p>
@@ -80,7 +85,10 @@ const CourseRatings: FunctionComponent<CourseReviewsProps> = ({ rating }) => {
           1&nbsp;
           <StarIcon className="h-5 w-5 fill-yellow-500 stroke-yellow-500" />
         </p>
-        <Progress className="w-[80%] h-3" value={rating.onestar} />
+        <Progress
+          className="w-[80%] h-3"
+          value={round((rating.onestar / rating.total) * 100, 1)}
+        />
         <p className="flex items-center text-sm text-foreground/80 w-[70px]">
           {round((rating.onestar / rating.total) * 100, 1)}%
         </p>

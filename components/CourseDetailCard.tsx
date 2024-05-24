@@ -1,18 +1,23 @@
+/* eslint-disable @next/next/no-img-element */
 import {
   PlayIcon,
   AwardIcon,
+  Loader2Icon,
   InfinityIcon,
   BookMarkedIcon,
   PlayCircleIcon,
   BadgeMinusIcon,
   ShoppingBagIcon,
 } from "lucide-react";
-import Image from "next/image";
+import { toast } from "sonner";
 import { useRecoilState } from "recoil";
-import { FunctionComponent } from "react";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import { FunctionComponent, useState } from "react";
 
 import { cartState } from "@/state/cart";
 import { Button } from "@/components/ui/button";
+import { useGetCookieKeys } from "@/hooks/auth";
 import { CourseDetails } from "@/typings/course";
 import { courseContentDialogState } from "@/state/course";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -21,10 +26,15 @@ interface CourseDetailCardProps {
   details: CourseDetails;
 }
 
+const endpoint = process.env.NEXT_PUBLIC_API_ENDPOINT;
+
 const CourseDetailCard: FunctionComponent<CourseDetailCardProps> = ({
   details,
 }) => {
+  const router = useRouter();
+  const { session: sKey } = useGetCookieKeys();
   const [cart, setCart] = useRecoilState(cartState);
+  const [enrolling, setEnrolling] = useState(false);
   const added = cart.find((i) => i.id === details.id);
   const [_sop, setOpenPreview] = useRecoilState(courseContentDialogState);
 
@@ -38,11 +48,42 @@ const CourseDetailCard: FunctionComponent<CourseDetailCardProps> = ({
     setCart(_cart);
   };
 
+  const handleEnroll = async (id: number) => {
+    setEnrolling(true);
+    const session = getCookie(sKey);
+    const url = endpoint + "/order";
+    try {
+      const resRaw = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courses: [{ courseId: id }],
+        }),
+      });
+      const res = await resRaw.json();
+      if (res.id) {
+        setCart([]);
+        router.push("/student/learning");
+        toast.success("Course enrolled success fully");
+      }
+      if (res.error) {
+        toast.error(res.message);
+      }
+    } catch (err: any) {
+      console.log(err);
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
   return (
     <Card className="overflow-hidden max-w-3xl rounded-sm">
       <CardHeader className="p-0 w-full">
         <div className="relative">
-          <Image
+          <img
             width={400}
             height={200}
             alt={details.title}
@@ -80,10 +121,20 @@ const CourseDetailCard: FunctionComponent<CourseDetailCardProps> = ({
         </Button>
         <Button
           variant="outline"
+          disabled={enrolling}
+          onClick={() => handleEnroll(details.id)}
           className="w-full inline-flex items-center gap-2"
         >
-          <BookMarkedIcon className="h-5 w-5" />
-          Enroll Now
+          {enrolling ? (
+            <>
+              <Loader2Icon className="h-5 w-5 animate-spin" /> Enrolling
+            </>
+          ) : (
+            <>
+              <BookMarkedIcon className="h-5 w-5" />
+              Enroll Now
+            </>
+          )}
         </Button>
 
         <div className="space-y-3">

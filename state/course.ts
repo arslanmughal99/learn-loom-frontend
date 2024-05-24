@@ -1,14 +1,13 @@
-import { atom, selector } from "recoil";
+import { atom } from "recoil";
 
-import { Course, PreviewLecture } from "../typings/course";
-import localStorageEffect from "./localstorage-persistence";
+import { Lecture } from "../typings/lecture";
 
 export const courseContentDialogState = atom<boolean>({
     default: false,
     key: 'course-content-dialog',
 })
 
-export const coursePreviewCurrentLecture = atom<PreviewLecture | undefined>({
+export const coursePreviewCurrentLecture = atom<Lecture | undefined>({
     default: undefined,
     key: 'course-preview-current-lecture'
 })

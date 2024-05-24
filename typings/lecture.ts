@@ -1,16 +1,17 @@
 import { CourseInstructor } from "./user";
 
-
-export type PreviewLecture = {
+export type Lecture = {
     id: number;
     title: string;
-    video: string;
+    video?: string;
     preview: boolean;
     duration: number;
     thumbnail: string;
-    createdAt: string;
-    attachments: any[];
-    description: string;
-    quiz: any;
     instructor: CourseInstructor;
+}
+
+export type LectureGroup = {
+    title: string;
+    index: number;
+    lectures: Lecture[]
 }

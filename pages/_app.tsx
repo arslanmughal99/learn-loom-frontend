@@ -6,19 +6,27 @@ import {
 import { useState } from "react";
 import { RecoilRoot } from "recoil";
 import type { AppProps } from "next/app";
+import { usePathname } from "next/navigation";
+
 
 import "@/styles/globals.scss";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { usePathname } from "next/navigation";
-import { GetServerSidePropsContext } from "next";
+import { Toaster } from "@/components/ui/sonner";
+
 
 export default function App({ Component, pageProps }: AppProps) {
   const [client] = useState(() => new QueryClient());
 
   const path = usePathname();
-  const hideLayout =
-    [/\/login*/, /\/auth*/].findIndex((p) => path.match(p)) === -1;
+  const hideLayout = path
+    ? [
+        /\/auth*/,
+        /\/login*/,
+        /certificate\/\w*/,
+        /student\/learning\/\d+/,
+      ].findIndex((p) => path.match(p)) === -1
+    : false;
 
   return (
     <>
@@ -30,13 +38,8 @@ export default function App({ Component, pageProps }: AppProps) {
             {hideLayout && <Footer />}
           </RecoilRoot>
         </HydrationBoundary>
+        <Toaster closeButton richColors />
       </QueryClientProvider>
     </>
   );
-}
-
-export function getServerSideProps(cx: GetServerSidePropsContext) {
-  return {
-    props: {},
-  };
 }

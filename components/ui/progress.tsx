@@ -8,7 +8,7 @@ import { cn } from "@/utils/utils";
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & {
-    varient: "default" | "yellow";
+    varient?: "default" | "yellow";
   }
 >(({ className, value, varient = "yellow", ...props }, ref) => (
   <ProgressPrimitive.Root

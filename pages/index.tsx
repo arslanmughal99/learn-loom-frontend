@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { CheckCircle } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 
+
 import {
   Carousel,
   CarouselNext,

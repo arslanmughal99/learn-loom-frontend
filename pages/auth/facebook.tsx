@@ -5,6 +5,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 
 import { Separator } from "@/components/ui/separator";
 import { useGetCookieKeys } from "../../hooks/auth";
+import { decode } from "jsonwebtoken";
 
 interface FacebookAuthProps {}
 
@@ -25,8 +26,26 @@ const FacebookAuth: FunctionComponent<FacebookAuthProps> = () => {
       const token = await res.json();
 
       if (token.accessToken && token.refreshToken) {
-        setCookie(sKey, token.accessToken);
-        setCookie(rKey, token.refreshToken);
+        const aToken = decode(token.accessToken, {
+          json: true,
+          complete: true,
+        })?.payload as any;
+
+        const rToken = decode(token.refreshToken, {
+          json: true,
+          complete: true,
+        })?.payload as any;
+
+        setCookie(sKey, token.accessToken, {
+          maxAge: aToken.exp - aToken.iat,
+          expires: new Date(aToken.exp * 1000),
+        });
+
+        setCookie(rKey, token.refreshToken, {
+          maxAge: rToken.exp - rToken.iat,
+          expires: new Date(rToken.exp * 1000),
+        });
+
         router.replace("/courses");
       } else {
         router.replace("/login?error=Facebook authentication failed");
